@@ -1,0 +1,15 @@
+;; This file was created by make-log-based-eval
+((require libserialport) ((3) 0 () 0 () () (c values c (void))) #"" #"")
+((serial-ports)
+ ((3) 0 () 0 () () (c values c (c (u . "/dev/ttyUSB0"))))
+ #""
+ #"")
+((for ((serial-port (in-serial-ports))) (printf "found ~a\n" serial-port))
+ ((3) 0 () 0 () () (c values c (void)))
+ #"found /dev/ttyUSB0\n"
+ #"")
+((define-values (in out) (open-serial-port "/dev/ttyUSB0" #:baudrate 115200))
+ ((3) 0 () 0 () () (c values c (void)))
+ #""
+ #"")
+((write-bytes #"x1AVx3\n" out) ((3) 0 () 0 () () (q values 7)) #"" #"")
