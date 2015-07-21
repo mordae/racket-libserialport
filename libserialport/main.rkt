@@ -5,7 +5,8 @@
 
 (require racket/contract
          racket/sequence
-         racket/path)
+         racket/path
+         ffi/file)
 
 (require libserialport/private/ffi)
 
@@ -36,6 +37,8 @@
                           #:parity (parity 'none)
                           #:stopbits (stopbits 1)
                           #:flowcontrol (flowcontrol 'none))
+  (security-guard-check-file 'open-serial-port path '(read write))
+
   (let ((port (sp_get_port_by_name path)))
     (sp_open port 'write)
     (sp_set_baudrate port baudrate)
