@@ -267,7 +267,7 @@
                    (regular? : _bool = #f)
                    (text-mode? : _bool = #f)
                    (read-too? : _bool = #t)
-                   -> _racket))
+                   --> _racket))
 
 
 (define (in-serial-ports)
