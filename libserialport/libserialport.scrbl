@@ -1,11 +1,11 @@
 #lang scribble/manual
 
 @require[(for-label libserialport)
-         (for-label racket)]
+         (for-label typed/racket/base)]
 
 @require[scribble/eval unstable/sandbox]
 
-@(define libserialport-eval (make-log-based-eval "libserialport-log" 'record))
+@(define libserialport-eval (make-log-based-eval "libserialport-log" 'replay))
 @interaction-eval[#:eval libserialport-eval (require libserialport)]
 
 @title{libserial: Portable Serial Port Access}
@@ -22,10 +22,19 @@ the system package manager.
 
 @defmodule[libserialport]
 
-The high-level interface provides port enumeration and a routine that
-combines opening and configuration of a serial port in a single step.
+A high-level interface to port enumeration, access and configuration.
 
-@defproc[(serial-ports) (listof path-string?)]{
+@defidform[Parity]{
+  Type for parity options. Equivalent to
+  @racket[(U 'invalid 'none 'odd 'even 'mark 'space)].
+}
+
+@defidform[Flow-Control]{
+  Type for flow control options. Equivalent to
+  @racket[(U 'none 'xonxoff 'rtscts 'dtrdsr)].
+}
+
+@defproc[(serial-ports) (Listof Path-String)]{
   Produce list of system serial port paths or names.
 
   @examples[#:eval libserialport-eval
@@ -33,9 +42,9 @@ combines opening and configuration of a serial port in a single step.
   ]
 }
 
-@defproc[(in-serial-ports) sequence?]{
+@defproc[(in-serial-ports) (Sequenceof Path-String)]{
   Iterate over known serial port paths or names.
-  Produces @racket[path-string?] values.
+  Produces @racket[Path-String] values.
 
   @examples[#:eval libserialport-eval
     (for ((serial-port (in-serial-ports)))
@@ -44,13 +53,13 @@ combines opening and configuration of a serial port in a single step.
 }
 
 @defproc[(open-serial-port
-           (path path-string?)
-           (#:baudrate baudrate exact-positive-integer? 9600)
-           (#:bits bits exact-positive-integer? 8)
-           (#:parity parity (or/c 'none 'odd 'even 'mark 'space) 'none)
-           (#:stopbits stopbits exact-positive-integer? 1)
-           (#:flowcontrol flowcontrol (or/c 'none 'xonxoff 'rtscts 'dtrdsr) 'none))
-           (values input-port? output-port?)]{
+           (path Path-String)
+           (#:baudrate baudrate Positive-Integer 9600)
+           (#:bits bits Positive-Integer 8)
+           (#:parity parity Parity 'none)
+           (#:stopbits stopbits Natural 1)
+           (#:flowcontrol flowcontrol Flow-Control 'none))
+           (values Input-Port Output-Port)]{
   Opens (and configures) selected serial port for both reading and writing.
   The default options correspond to the most frequently used null-modem case
   typical for switches and other similar embedded devices.

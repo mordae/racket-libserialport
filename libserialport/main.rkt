@@ -23,10 +23,10 @@
     (-> Serial-Port (U 'read 'write) Void))
 
   (sp_set_baudrate
-    (-> Serial-Port Natural Void))
+    (-> Serial-Port Positive-Integer Void))
 
   (sp_set_bits
-    (-> Serial-Port Natural Void))
+    (-> Serial-Port Positive-Integer Void))
 
   (sp_set_parity
     (-> Serial-Port Parity Void))
@@ -66,8 +66,8 @@
 
 (: open-serial-port
   (->* (Path-String)
-       (#:baudrate Natural
-        #:bits Natural
+       (#:baudrate Positive-Integer
+        #:bits Positive-Integer
         #:parity Parity
         #:stopbits Natural
         #:flowcontrol Flow-Control)
@@ -97,9 +97,7 @@
 (define (path->port-name path)
   (let ((path (file-name-from-path path)))
     (string->symbol
-      (if path
-          (path->string path)
-          "unknown"))))
+      (if path (path->string path) "unknown"))))
 
 
 ; vim:set ts=2 sw=2 et:
