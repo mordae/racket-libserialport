@@ -1,36 +1,77 @@
-#lang racket/base
+#lang typed/racket/base
 ;
 ; Serial Port Access
 ;
 
-(require racket/contract
-         racket/sequence
-         racket/path
-         ffi/file)
+(require racket/sequence
+         racket/path)
 
-(require libserialport/private/ffi)
+(require/typed ffi/file
+  (security-guard-check-file
+    (-> Symbol Path-String (Listof (U 'read 'write)) Void)))
 
-(provide
-  (contract-out
-    (in-serial-ports (-> sequence?))
-    (serial-ports (-> (listof path-string?)))
+(require/typed libserialport/private/ffi
+  (#:opaque Serial-Port sp-port-pointer?)
 
-    (open-serial-port
-      (->* (path-string?)
-           (#:baudrate exact-positive-integer?
-            #:bits exact-positive-integer?
-            #:parity (or/c 'none 'odd 'even 'mark 'space)
-            #:stopbits exact-positive-integer?
-            #:flowcontrol (or/c 'none 'xonxoff 'rtscts 'dtrdsr))
-           (values input-port? output-port?)))))
+  (in-serial-ports
+    (-> (Sequenceof Path-String)))
+
+  (sp_get_port_by_name
+    (-> Path-String Serial-Port))
+
+  (sp_open
+    (-> Serial-Port (U 'read 'write) Void))
+
+  (sp_set_baudrate
+    (-> Serial-Port Natural Void))
+
+  (sp_set_bits
+    (-> Serial-Port Natural Void))
+
+  (sp_set_parity
+    (-> Serial-Port Parity Void))
+
+  (sp_set_stopbits
+    (-> Serial-Port Natural Void))
+
+  (sp_set_flowcontrol
+    (-> Serial-Port Flow-Control Void))
+
+  (sp_get_port_handle
+    (-> Serial-Port Integer))
+
+  (scheme_make_fd_output_port
+    (-> Integer Symbol (values Input-Port Output-Port))))
 
 
+(provide serial-ports
+         in-serial-ports
+         open-serial-port
+         Parity
+         Flow-Control)
 
+
+(define-type Parity
+  (U 'invalid 'none 'odd 'even 'mark 'space))
+
+(define-type Flow-Control
+  (U 'none 'xonxoff 'rtscts 'dtrdsr))
+
+
+(: serial-ports (-> (Listof Path-String)))
 (define (serial-ports)
   (sequence->list
     (in-serial-ports)))
 
 
+(: open-serial-port
+  (->* (Path-String)
+       (#:baudrate Natural
+        #:bits Natural
+        #:parity Parity
+        #:stopbits Natural
+        #:flowcontrol Flow-Control)
+       (values Input-Port Output-Port)))
 (define (open-serial-port path
                           #:baudrate (baudrate 9600)
                           #:bits (bits 8)
@@ -52,10 +93,13 @@
       (scheme_make_fd_output_port fd name))))
 
 
+(: path->port-name (-> Path-String Symbol))
 (define (path->port-name path)
-  (string->symbol
-    (path->string
-      (file-name-from-path path))))
+  (let ((path (file-name-from-path path)))
+    (string->symbol
+      (if path
+          (path->string path)
+          "unknown"))))
 
 
 ; vim:set ts=2 sw=2 et:
