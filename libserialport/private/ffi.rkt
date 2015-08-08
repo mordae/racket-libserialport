@@ -262,7 +262,7 @@
                            (allocator sp_free_error_message)))
 
 (define-libc scheme_make_fd_output_port
-             (_fun (fd : _int)
+             (_fun (fd : _handle)
                    (name : _racket)
                    (regular? : _bool = #f)
                    (text-mode? : _bool = #f)
