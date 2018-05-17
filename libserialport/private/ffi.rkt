@@ -70,7 +70,8 @@
 ;; Port access modes.
 (define _sp-mode
   (_enum '(read  = 1
-           write = 2)
+           write = 2
+           read-write = 3)
          _int))
 
 ;; Parity settings.

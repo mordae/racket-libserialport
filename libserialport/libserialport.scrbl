@@ -68,6 +68,14 @@ A high-level interface to port enumeration, access and configuration.
     (define-values (in out)
       (open-serial-port "/dev/ttyUSB0" #:baudrate 115200))
     (write-bytes #"x1AVx3\n" out)
+    (let loop ()
+      (define read-result (read-bytes-avail!* read-buffer port))
+      (cond [(or (eof-object? read-result)
+                 (and (number? read-result) (not (= read-result 0))))
+             (display (bytes->string/utf-8 (read-bytes read-result port)))
+             (display "")] ; flash output
+            [else (sleep 0.1)])
+      (loop))
   ]
 }
 

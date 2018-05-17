@@ -20,7 +20,7 @@
     (-> Path-String Serial-Port))
 
   (sp_open
-    (-> Serial-Port (U 'read 'write) Void))
+    (-> Serial-Port Mode Void))
 
   (sp_set_baudrate
     (-> Serial-Port Positive-Integer Void))
@@ -57,6 +57,9 @@
 (define-type Flow-Control
   (U 'none 'xonxoff 'rtscts 'dtrdsr))
 
+(define-type Mode
+  (U 'read 'write 'read-write))
+
 
 (: serial-ports (-> (Listof Path-String)))
 (define (serial-ports)
@@ -70,18 +73,20 @@
         #:bits Positive-Integer
         #:parity Parity
         #:stopbits Natural
-        #:flowcontrol Flow-Control)
+        #:flowcontrol Flow-Control
+        #:mode Mode)
        (values Input-Port Output-Port)))
 (define (open-serial-port path
                           #:baudrate (baudrate 9600)
                           #:bits (bits 8)
                           #:parity (parity 'none)
                           #:stopbits (stopbits 1)
-                          #:flowcontrol (flowcontrol 'none))
+                          #:flowcontrol (flowcontrol 'none)
+                          #:mode (mode 'read-write))
   (security-guard-check-file 'open-serial-port path '(read write))
 
   (let ((port (sp_get_port_by_name path)))
-    (sp_open port 'write)
+    (sp_open port mode)
     (sp_set_baudrate port baudrate)
     (sp_set_bits port bits)
     (sp_set_parity port parity)
