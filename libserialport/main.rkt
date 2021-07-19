@@ -40,7 +40,7 @@
   (sp_get_port_handle
     (-> Serial-Port Integer))
 
-  (scheme_make_fd_output_port
+  (make-fd-output-port
     (-> Integer Symbol (values Input-Port Output-Port))))
 
 
@@ -95,7 +95,7 @@
 
     (let ((fd (sp_get_port_handle port))
           (name (path->port-name path)))
-      (scheme_make_fd_output_port fd name))))
+      (make-fd-output-port fd name))))
 
 
 (: path->port-name (-> Path-String Symbol))

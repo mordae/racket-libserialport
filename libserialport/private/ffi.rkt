@@ -9,7 +9,8 @@
 (require racket/match
          racket/generator
          ffi/unsafe/define
-         ffi/unsafe/alloc)
+         ffi/unsafe/alloc
+         ffi/unsafe/port)
 
 (require misc1/throw)
 
@@ -262,14 +263,8 @@
            #:wrap (compose (convert bytes->string/utf-8)
                            (allocator sp_free_error_message)))
 
-(define-libc scheme_make_fd_output_port
-             (_fun (fd : _handle)
-                   (name : _racket)
-                   (regular? : _bool = #f)
-                   (text-mode? : _bool = #f)
-                   (read-too? : _bool = #t)
-                   --> _racket))
-
+(define (make-fd-output-port fd name)
+  (unsafe-file-descriptor->port fd name '(read write)))
 
 (define (in-serial-ports)
   (in-generator
